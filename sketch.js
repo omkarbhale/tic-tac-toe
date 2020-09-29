@@ -1,24 +1,27 @@
 var isOcupied = [];
-var move = "X";
+var move = "O";
 var gameState = [];
 
 function setup() {
     width = 600;
     height = 600;
 
-    for (i = 0; i < 9; i++) {
-        isOcupied[i] = false;
-    }
+    // for (i = 0; i < 9; i++) {
+    //     isOcupied[i] = false;
+    // }
 
     createCanvas(width, height);
     background(50);
     // frameRate(1);
     for (k = 0; k < 3; k++) {
-        var temp = [];
+        let temp = [];
+        let temp1 = [];
         for (y = 0; y < 3; y++) {
             temp[y] = null;
+            temp1[y] = false;
         }
         gameState.push(temp);
+        isOcupied.push(temp1);
     }
 }
 
@@ -32,18 +35,19 @@ function draw() {
     if (mouseIsPressed) {
         var col = checkCol();
         var row = checkRow();
+        console.log("playing at", col, row)
         // if(isOcupied[col][row] != false)
         playAt(col, row);
-        if (checkWin(gameState) == "X") {
-            console.log("X wins");
-            alert("X wins!, refresh to restart:)");
-            noLoop();
-        }
-        if (checkWin(gameState) == "O") {
-            console.log("O wins");
-            alert("O     wins!, refresh to restart:)")
-            noLoop();
-        }
+        // if (checkWin(gameState) == "X") {
+        //     console.log("X wins");
+        //     alert("X wins!, refresh to restart:)");
+        //     noLoop();
+        // }
+        // if (checkWin(gameState) == "O") {
+        //     console.log("O wins");
+        //     alert("O     wins!, refresh to restart:)")
+        //     noLoop();
+        // }
 
 
     }
@@ -79,11 +83,11 @@ function checkRow() {
 }
 
 function playAt(col, row) {
-    if (isOcupied[(row - 1) * 3 + col - 1] == true) {
+    if (isOcupied[col-1][row-1] == true) {
         return;
     }
     else if (move == "O") {
-        isOcupied[(row - 1) * 3 + col - 1] = true;
+        isOcupied[col-1][row-1] = true;
         new o(col, row, width);
         gameState[col - 1][row - 1] = "O";
         move = "X";
@@ -91,9 +95,27 @@ function playAt(col, row) {
     }
 
     else if (move == "X") {
-        isOcupied[(row - 1) * 3 + col - 1] = true;
-        new x(col, row, width);
-        gameState[col - 1][row - 1] = "X";
+        let bestScore = -Infinity;
+        let tempmMove = {};
+        for(let i=0; i < 3; i++){ //col-1/x
+            for(let j=0; j<3; j++){ //row-1/y
+                let score;
+                if(isOcupied[i][j] == false){
+                    gameState[i][j] == "X";
+                    score = minimax(false, 10);
+                    gameState[i][j] == null;
+                }
+                if(score > bestScore) {
+                    bestScore = score;
+                    tempMove = {x: i, y: j};
+                }
+            }
+        }
+
+
+        isOcupied[tempMove.x][tempMove.y] = true;
+        new x(tempMove.x+1, tempMove.y+1, width);
+        gameState[tempMove.x][tempMove.y] = "X";
         move = "O";
         return;
     }
