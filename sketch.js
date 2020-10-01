@@ -12,17 +12,26 @@ function setup() {
 
     createCanvas(width, height);
     background(50);
-    // frameRate(1);
-    for (k = 0; k < 3; k++) {
-        let temp = [];
-        let temp1 = [];
-        for (y = 0; y < 3; y++) {
-            temp[y] = null;
-            temp1[y] = false;
-        }
-        gameState.push(temp);
-        isOcupied.push(temp1);
-    }
+    gameState = [
+        ["X", "O", "O"],
+        ["X", null, "O"],
+        [null, null, null]
+    ]
+    isOcupied = [
+        [true, true, true],
+        [true, false, true],
+        [false, false, false]
+    ]
+    // for (k = 0; k < 3; k++) {
+    //     let temp = [];
+    //     let temp1 = [];
+    //     for (y = 0; y < 3; y++) {
+    //         temp[y] = null;
+    //         temp1[y] = false;
+    //     }
+    //     gameState.push(temp);
+    //     isOcupied.push(temp1);
+    // }
 }
 
 function draw() {
@@ -36,19 +45,20 @@ function draw() {
         var col = checkCol();
         var row = checkRow();
         console.log("playing at", col, row)
-        // if(isOcupied[col][row] != false)
-        playAt(col, row);
-        // if (checkWin(gameState) == "X") {
-        //     console.log("X wins");
-        //     alert("X wins!, refresh to restart:)");
-        //     noLoop();
-        // }
-        // if (checkWin(gameState) == "O") {
-        //     console.log("O wins");
-        //     alert("O     wins!, refresh to restart:)")
-        //     noLoop();
-        // }
 
+        if (col != false && row != false) {
+            playAt(col, row);
+            // if (checkWin(gameState) == "X") {
+            //     console.log("X wins");
+            //     alert("X wins!, refresh to restart:)");
+            //     noLoop();
+            // }
+            // if (checkWin(gameState) == "O") {
+            //     console.log("O wins");
+            //     alert("O     wins!, refresh to restart:)")
+            //     noLoop();
+            // }
+        }
 
     }
 }
@@ -83,40 +93,56 @@ function checkRow() {
 }
 
 function playAt(col, row) {
-    if (isOcupied[col-1][row-1] == true) {
+    if (isOcupied[col - 1][row - 1] == true) {
         return;
     }
     else if (move == "O") {
-        isOcupied[col-1][row-1] = true;
+        isOcupied[col - 1][row - 1] = true;
         new o(col, row, width);
         gameState[col - 1][row - 1] = "O";
         move = "X";
-        return;
+
+        if (checkWin(gameState) == "O") {
+            console.log("O wins");
+            alert("O wins!, refresh to restart:)")
+            noLoop();
+            return;
+        }
     }
 
-    else if (move == "X") {
+    if (move == "X") {
         let bestScore = -Infinity;
-        let tempmMove = {};
-        for(let i=0; i < 3; i++){ //col-1/x
-            for(let j=0; j<3; j++){ //row-1/y
+        let tempMove = {};
+        for (let i = 0; i < 3; i++) { //col-1/x
+            for (let j = 0; j < 3; j++) { //row-1/y
                 let score;
-                if(isOcupied[i][j] == false){
+                if (isOcupied[i][j] == false) {
+                    isOcupied[i][j] == true;
                     gameState[i][j] == "X";
-                    score = minimax(false, 10);
+                    score = minimax(false, gameState, isOcupied, 10);
                     gameState[i][j] == null;
+                    isOcupied[i][j] == false;
                 }
-                if(score > bestScore) {
+                if (score > bestScore) {
                     bestScore = score;
-                    tempMove = {x: i, y: j};
+                    tempMove = { x: i, y: j };
                 }
             }
         }
 
 
         isOcupied[tempMove.x][tempMove.y] = true;
-        new x(tempMove.x+1, tempMove.y+1, width);
+        new x(tempMove.x + 1, tempMove.y + 1, width);
         gameState[tempMove.x][tempMove.y] = "X";
         move = "O";
+
+
+        if (checkWin(gameState) == "X") {
+            console.log("X wins");
+            alert("X wins!, refresh to restart:)");
+            noLoop();
+            return;
+        }
         return;
     }
 
@@ -146,8 +172,8 @@ function checkWin(game) {
             }
         }
     }
-    if(game[0][0]){
-        if(game[0][0] == game[1][1] && game[0][0] == game[2][2]){
+    if (game[0][0]) {
+        if (game[0][0] == game[1][1] && game[0][0] == game[2][2]) {
             if (game[0][0] == "X") {
                 return "X";
             } else {
@@ -155,8 +181,8 @@ function checkWin(game) {
             }
         }
     }
-    if(game[2][0]){
-        if(game[2][0] == game[1][1] && game[2][0] == game[0][2]){
+    if (game[2][0]) {
+        if (game[2][0] == game[1][1] && game[2][0] == game[0][2]) {
             if (game[2][0] == "X") {
                 return "X";
             } else {
